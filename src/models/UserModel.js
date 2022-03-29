@@ -40,7 +40,8 @@ const user = new mongoose.Schema({
             type: String
         },
         pincode: {
-            type: String
+            type: String,
+            validate:[/^[0-9]{6}$/,"please enter the six digit pincode in number form like this 123456"]
         }
     },
 
