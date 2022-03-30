@@ -9,13 +9,13 @@ router.post("/register",usercontroller.user)
 router.post("/login",usercontroller.loginUser)
 
 router.post("/createbook",ProjectMiddleware.authentication,bookcontroller.createbook)
-router.get("/getbook",bookcontroller.booklist)
-router.get("/books/:bookId",bookcontroller.getBookReview)
-router.put("/books/:bookId",bookcontroller.updatebook)
-router.delete("/books/:bookId",bookcontroller.deleteBook)
+router.get("/getbook",ProjectMiddleware.authentication,bookcontroller.booklist)
+router.get("/books/:bookId",ProjectMiddleware.authentication,bookcontroller.getBookReview)
+router.put("/books/:bookId",ProjectMiddleware.authentication,ProjectMiddleware.authorization,bookcontroller.updatebook)
+router.delete("/books/:bookId",ProjectMiddleware.authentication,ProjectMiddleware.authorization,bookcontroller.deleteBook)
 
-router.post("/createReview/:bookId",reviewcontroller.createReview)
-router.put("/books/:bookId/review/:reviewId",reviewcontroller.reviewUpdate)
-router.delete('/books/:bookId/review/:reviewId',reviewcontroller.reviewDelete)
+router.post("/createReview/:bookId",ProjectMiddleware.authentication,reviewcontroller.createReview)
+router.put("/books/:bookId/review/:reviewId",ProjectMiddleware.authentication,ProjectMiddleware.authorization,reviewcontroller.reviewUpdate)
+router.delete('/books/:bookId/review/:reviewId',ProjectMiddleware.authentication,ProjectMiddleware.authorization,reviewcontroller.reviewDelete)
 
 module.exports = router;
