@@ -27,7 +27,7 @@ const createReview = async function (req, res) {
             return res.status(400).send({ status: false, msg: "reviewer name  is required" })
 
         }
-        const bookData = await bookodel.findOne({ bookId: bookId })
+        const bookData = await bookmodel.findOne({ bookId: bookId })
 
         if (!bookData) {
             return res.status(404).send({ status: false, msg: "not found" })
@@ -48,7 +48,7 @@ const createReview = async function (req, res) {
         }
         //min and max rating pending
         let creatReviewData = {bookId,reviewData}
-        let data = await reviewModel.create(creatReviewData)
+        let data = await reviewmodel.create(creatReviewData)
         let result = {
             _id: data._id,
             bookId: data.bookId,
