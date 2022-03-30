@@ -82,11 +82,14 @@ const createReview = async function (req, res) {
         }
         result1['reviewsData'] = result
         return res.status(201).send({ status: true, msg: 'successfully created', data: result1 })
+
+
+
     }
     catch (err) {
         return res.status(500).send({ status: false, msg: err.message })
     }
-};
+}
 
 
 const reviewUpdate = async function (req, res) {
