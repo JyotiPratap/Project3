@@ -160,10 +160,10 @@ const getBookReview = async function (req, res) {
         let eachReview = await reviewmodel.find({ bookId: bookId }).select({ bookId: 1, reviewedBy: 1, reviewedAt: 1, rating: 1, review: 1 })
         if (!eachReview) {
             result['reviewsData'] = "No review for this books"
-            return res.status(200).send({ status: false, data: result })
+            return res.status(200).send({ status: true, data: result })
         }
         result['reviewsData'] = eachReview
-        return res.status(200).send({ status: false, data: result })
+        return res.status(200).send({ status: true, data: result })
     }
     catch (err) {
         return res.status(500).send({ status: false, msg: err.message })
