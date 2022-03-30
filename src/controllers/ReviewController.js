@@ -1,7 +1,7 @@
 const reviewModel = require('../models/ReviewModel')
 const bookModel = require('../models/BookModel')
 const objectId = require('mongoose').Types.ObjectId
-
+const moment = require("moment")
 
 const isValid = function (value) {
     if (typeof value == 'undefined' || value === null) return false
@@ -149,9 +149,9 @@ const reviewDelete = async function (req, res) {
         if (!objectId.isValid(reviewId)) {
             return res.status(400).send({ status: false, msg: " reviewId is invalid" })
         }
-        let updated = await reviewModel.findOneAndUpdate({ _id: reviewId, isDeleted: false }, { $set: { isDeleted: true } })
-        let reviewCountDec = await bookId.findOneAndUpdate({ _id: bookId, isDeleted: false }, { $inc: { review: -1 } })
-        return res.status(200).send()
+        let data = { isDeleted: true, deletedAt: moment() }
+        const deleteData = await reviewModel.findOneAndUpdate({ _id: reviewId, isDeleted: false }, { $set: data }, { new: true })
+        return res.status(400).send({ status: false, msg: deleteData })
     }
     catch (err) {
         return res.status(500).send({ status: false, msg: err.message })
