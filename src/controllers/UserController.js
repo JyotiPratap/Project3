@@ -50,14 +50,13 @@ const isValid = function (value) {
          if (dupEmail) {
              return res.status(400).send({ status: false, msg: "this email ID is already registered" })
          }
+         if (!isValid(userData.password)) {
+            return res.status(400).send({ status: false, msg: "password is required" })
+        }
          if (!(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[a-zA-Z0-9]{8,}$/).test(userData.password)) {
              return res.status(400).send({ status: false, msg: "password should contain at least [1,@.,a-zA] " })
  
          }
-         if (!isValid(userData.password)) {
-             return res.status(400).send({ status: false, msg: "password is required" })
-         }
- 
          let saveData = await usermodel.create(userData)
          let result = {
              _id: saveData._id,
@@ -97,7 +96,7 @@ const loginUser = async function(req,res){
                return res.status(400).send({status:false,msg:"credentials dont match,plz check and try again"})} 
             
           let token = jwt.sign({
-               userId : user._id.toString(),  
+               userId : user._id.toString(), exp: Math.floor(Date.now() / 1000) + (60 * 30) 
           },"Project_3")
           res.setHeader("x-api-key", token);
           res.status(200).send({status : true, data : token})

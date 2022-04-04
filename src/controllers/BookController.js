@@ -81,52 +81,65 @@ const createbook = async function (req, res) {
 };
 
 const booklist = async function (req, res) {
-    try {
-        const queryParams = req.query
-        const filterConditions = { isDeleted: false }
-
-        if (isValid(queryParams)) {
-            const { userId, category, subcategory } = queryParams
-
-            if (isValid(userId) && !isValid(userId)) {
-                const userById = await usermodel.findById(userId)
-                if (!isValid(userId)) {
-                    return res.status(400).send({ status: false, msg: "invalid userId" })
+        try {
+            let queryParam = req.query;
+            if (Object.keys(queryParam).length == 0) {
+                let bookData = await bookmodel.find({ isDeleted: false }).sort({ title: 1 }).select({ title: 1, excerpt: 1, userId: 1, category: 1, reviews: 1, releasedAt: 1 })
+                if (!bookData) {
+                    return res.status(404).send({ status: false, msg: "book not found" })
                 }
-                if (userById) {
-                    filterConditions['userId'] = userId
+                bookData['data'] = bookData
+                return res.status(200).send({ status: true, msg: "success", data: bookData })
+    
+            }
+            //userId Validation
+            if (Object.keys(queryParam).includes('userId')) {
+                if (!objectId.isValid(queryParam.userId)) {
+                    return res.status(400).send({ status: false, msg: "userId is not valid" })
                 }
             }
-
-            if (isValid(category)) {
-                filterConditions['category'] = category.trim()
+            //category validation
+            if (Object.keys(queryParam).includes('category')) {
+                let validCat = await bookmodel.findOne({ category: queryParam.category })
+                if (!validCat) {
+                    return res.status(400).send({ status: false, msg: "category data not valid" })
+                }
             }
-
-            if (isValid(subcategory)) {
-                filterConditions['subcategory'] = subcategory.trim()
+            //subcategory validation
+            if (Object.keys(queryParam).includes('subcategory')) {
+                let validCat = await bookmodel.findOne({ subcategory: queryParam.subcategory })
+                if (!validCat) {
+                    return res.status(400).send({ status: false, msg: "subcategory data not valid" })
+                }
             }
-            const bookListAfterFiltration = await bookmodel.find(filterConditions).select({ _id: 1, title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 })
-
-            if (bookListAfterFiltration.length == 0) {
-                return res.status(404).send({ status: false, message: "no books found" })
+            let filterCondition = { isDeleted: false }
+            if (Object.keys(queryParam)) {
+                let { userId, category, subcategory } = queryParam
+                if (isValid(userId)) {
+                    filterCondition['userId'] = userId.trim()
+                }
+                if (isValid(category)) {
+                    filterCondition['category'] = category.trim()
+                }
+                if (isValid(subcategory)) {
+                    filterCondition['subcategory'] = subcategory.trim()
+                }
             }
-
-            res.status(200).send({ status: true, message: "filtered Book list is here", bookList: bookListAfterFiltration })
-
-        } else {
-            const bookList = await bookmodel.find(filterConditions).select({ _id: 1, title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 })
-
-            if (bookList.length == 0) {
-                return res.status(404).send({ status: false, message: "no books found" })
+            let filterBook = await bookmodel.find(filterCondition).sort({ title: 1 }).select({ title: 1, excerpt: 1, userId: 1, category: 1, reviews: 1, releasedAt: 1 })
+            if (!filterBook) {
+                return res.status(404).send({ status: false, msg: "book not found" })
             }
-
-            res.status(200).send({ status: true, message: "Book list is here", bookList: bookList })
+            //filterBook['data'] = filterBook
+            return res.status(200).send({ status:true, msg: "success", data: filterBook })
+    
         }
-    }
-    catch (err) {
-        res.status(500).send({ error: err.message })
-    }
-};
+        catch (err) {
+            return res.status(500).send({ status: false, msg: err.message })
+    
+        }
+    
+    
+    };
 //books review list ==========================================================================================================
 const getBookReview = async function (req, res) {
     try {
@@ -157,13 +170,13 @@ const getBookReview = async function (req, res) {
             createdAt: reviewList.createdAt,
             updatedAt: reviewList.updatedAt
         }
-        let eachReview = await reviewmodel.find({ bookId: bookId }).select({ bookId: 1, reviewedBy: 1, reviewedAt: 1, rating: 1, review: 1 })
+        let eachReview = await reviewmodel.find({ bookId: bookId }).select({ bookId: 1, reviewedBy: 1, reviewedAt: 1, rating: 1, reviews: 1 })
         if (!eachReview) {
             result['reviewsData'] = "No review for this books"
-            return res.status(200).send({ status: true, data: result })
+            return res.status(200).send({ status: false, data: result })
         }
         result['reviewsData'] = eachReview
-        return res.status(200).send({ status: true, data: result })
+        return res.status(200).send({ status:true, data: result })
     }
     catch (err) {
         return res.status(500).send({ status: false, msg: err.message })
